@@ -1,0 +1,104 @@
+- hosts: appservers
+
+  vars: 
+    branch: "Code"
+    appdir: "/opt/adoption-app"
+    app_repo: "https://github.com/Thomaskald/DistributedSystems.git"
+    java_version: "openjdk-21-jdk"
+    app:
+      env:
+        spring.datasource.url: "jdbc:postgresql://<your-db-ip>:5432/<your-db-name>"
+        spring.datasource.username: "<your-db-user>"
+        spring.datasource.password: "<your-db-password>"
+
+  pre_tasks:
+    - name: "Install Java"
+      apt: 
+        name: "{{ java_version }}"
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: "Install Maven"
+      apt: 
+        name: maven
+        state: present
+      become: yes
+
+
+  tasks:
+    - name: "Clone the application repository"
+      git: 
+        repo: "{{ app_repo }}"
+        dest: "{{ appdir }}"
+        version: "{{ branch }}"
+        force: yes
+
+    - name: "Populate application.properties"
+      lineinfile: 
+        dest: "{{ appdir }}/src/main/resources/application.properties"
+        regexp: "^{{ item.key }}="
+        line: "{{ item.key }}={{ item.value }}"
+        state: present
+      with_items:
+        - "{{ app.env | dict2items }}"
+    
+    - name: "Build the Spring Boot application"
+      command: mvn package -Dmaven.test.skip=true
+      args: 
+        chdir: "{{ appdir }}"
+      decome: yes
+
+    - name: "Copy systemd service file for Spring Boot"
+      template: 
+        src: ../files/spring.service.j2
+        dest: /etc/systemd/system/spring.service
+      become: yes
+      notify: restart spring
+
+    - name: "Ensure spring service is started and enabled"
+      service: 
+        name: spring
+        state: started
+        enabled: yes
+      become: yes
+
+    - name: "Install Nginx"
+      apt: 
+        name: Nginx
+        update_cache: yes
+      become: yes
+
+    - name: "Copy nginx config"
+      template: 
+        src: ../files/nginx.http.j2
+        dest: /etc/nginx/sites-available/spring
+      become: yes
+
+    - name: "Enable Spring site in nginx"
+      file: 
+        src: /etc/nginx/sites-available/spring
+        dest: /etc/nginx/sites-enabled/spring
+        states: link
+      become: yes
+      notify: restart nginx
+
+    - name: Disable default nginx site
+      file: 
+        path: /etc/nginx/site-enabled/default
+        state: absent
+      become: yes
+      notify: restart nginx
+  
+  handlers: 
+    - name: "restart spring"
+      service: 
+        name: spring
+        state: restarted
+      become: yes
+
+    - name: "restart nginx"
+      service: 
+        name: nginx
+        state: restarted
+      become: yes
