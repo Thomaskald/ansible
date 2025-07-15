@@ -2,14 +2,14 @@
 
   vars: 
     branch: "Code"
-    appdir: "/opt/adoption-app"
+    appdir: "/opt/ds-lab-2024-0.0.1-SNAPSHOT.jar"
     app_repo: "https://github.com/Thomaskald/DistributedSystems.git"
     java_version: "openjdk-21-jdk"
     app:
       env:
-        spring.datasource.url: "jdbc:postgresql://<your-db-ip>:5432/<your-db-name>"
-        spring.datasource.username: "<your-db-user>"
-        spring.datasource.password: "<your-db-password>"
+        spring.datasource.url: "jdbc:postgresql://dpg-d187i2p5pdvs73bvc2ng-a.oregon-postgres.render.com:5432/dbname_ueiu"
+        spring.datasource.username: "user"
+        spring.datasource.password: "aLvUzUkaU9nNK4MVEksMiCkkjFofBwp5"
 
   pre_tasks:
     - name: "Install Java"
@@ -33,6 +33,7 @@
         dest: "{{ appdir }}"
         version: "{{ branch }}"
         force: yes
+      become: yes
 
     - name: "Populate application.properties"
       lineinfile: 
@@ -47,7 +48,7 @@
       command: mvn package -Dmaven.test.skip=true
       args: 
         chdir: "{{ appdir }}"
-      decome: yes
+      become: yes
 
     - name: "Copy systemd service file for Spring Boot"
       template: 
@@ -65,7 +66,7 @@
 
     - name: "Install Nginx"
       apt: 
-        name: Nginx
+        name: nginx
         update_cache: yes
       become: yes
 
@@ -79,7 +80,7 @@
       file: 
         src: /etc/nginx/sites-available/spring
         dest: /etc/nginx/sites-enabled/spring
-        states: link
+        state: link
       become: yes
       notify: restart nginx
 
@@ -89,6 +90,12 @@
         state: absent
       become: yes
       notify: restart nginx
+
+    - name: Check nginx config
+      command: nginx -t
+      become: yes
+      register: nginx_test
+      failed_when: nginx_test.rc != 0
   
   handlers: 
     - name: "restart spring"

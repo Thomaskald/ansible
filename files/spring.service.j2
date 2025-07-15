@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 User=root
-WorkingDirectory=/opt/adoption-app
-ExecStart=/usr/bin/java -jar /opt/adoption-app/target/*.jar
+WorkingDirectory=/opt/ds-lab-2024-0.0.1-SNAPSHOT.jar
+ExecStart=/usr/bin/java -jar /opt/ds-lab-2024-0.0.1-SNAPSHOT.jar/target/ds-lab-2024-0.0.1-SNAPSHOT.jar 
 SeccessExitStatus=143
 Restart=always
 RestartSec=5

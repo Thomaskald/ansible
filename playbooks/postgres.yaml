@@ -33,8 +33,9 @@
       msg: "Postgres data debug {{postgres_data}}"
 
   - name: "Initialize PostgreSQL"
-    shell: "postgresql-setup initdb"
-    when: not postgres_data.stat.exists
+    apt:
+      name: postgresql
+      state: present
 
   - name: "Start and enable services"
     service: 
@@ -47,36 +48,36 @@
   - name: Create app database 
     postgresql_db: 
       state: present
-      name: # Databse name
+      name: dbname_ueiu # Databse name
     become: yes
     become_user: postgres
 
   - name: "Create db user"
     postgresql_user: 
       state: present
-      name: # User name for db 
-      password: # Password for db
+      name: user # User name for db 
+      password: aLvUzUkaU9nNK4MVEksMiCkkjFofBwp5 # Password for db
     become: yes
     become_user: postgres
 
   - name: "Grant db user access to app db" 
     postgresql_privs: 
       type: database
-      database: # Database name
-      roles: # Database user name
-      grant_options: no
+      database: dbname_ueiu # Database name
+      roles: user # Database user name
+      grant_option: no
       privs: all
     become: yes
     become_user: postgres
 
   - name: "Allow md5 connection for db user"
     postgresql_pg_hba: 
-      dest: "/etc/postgresql/16/main/pg_hba.conf"
+      dest: "/etc/postgresql/14/main/pg_hba.conf"
       contype: host
       databases: all
       source: 0.0.0.0/0
       method: md5
-      users: # Db user name
+      users: user # Db user name
       create: true
     become: yes 
     become_user: postgres
@@ -84,7 +85,7 @@
 
   - name: "Allow connections from all"
     lineinfile: 
-      path: "/etc/postgresql/16/main/postgresql.conf"
+      path: "/etc/postgresql/14/main/postgresql.conf"
       line: "listen_addresses = '*'"
       regexp: "^#listen_addresses = 'localhost'"
       state: present 
