@@ -1,0 +1,62 @@
+- hosts: dockerservers
+  become: true
+  vars: 
+    appdir: /home/vagrant/app
+    branch: Code
+    appp: 
+      env: 
+      SPRING_DATASOURCE_URL: 
+      SPRING_DATASOURCE_USERNAME: 
+      SPRING_DATASOURCE_PASSWORD: 
+  
+  tasks: 
+    - name: "Check if docker is installed"
+      shell: docker --version && docker compose version
+      register: docker_version_result
+      ignore_errors: true
+
+    - name: "Set Docker installed fact"
+      set_fact: 
+        docker_installed: "{{ docker_version_result.rc == 0 }}"
+
+    - name: Include install_docker playbook if Docker is not installed
+      include_tasks: docker.yaml
+      when: not docker_installed
+
+    - name: "Clone the Spring repository"
+      ansible.builtin.git: 
+        repo: "https://github.com/Thomaskald/DistributedSystems.git"
+        dest: "{{ appdir }}"
+        version: "{{ branch }}"
+        force: yes
+
+    - name: "Populate application.properties"
+      ansible.builtin.lineinfile: 
+        dest: "{{ appdir }}/src/main/resources/application.properties"
+        state: present
+        regexp: "^{{ item.key }}="
+        line: "{{ item.key }}={{ item.value }}"
+      loop: "{{ appp.env | dict2items }}"
+
+    - name: "Tear down existing services"
+      community.docker.docker_compose_v2: 
+        project_src: "{{ appdir }}"
+        state: absent
+
+    - name: "Create and start services"
+      community.docker.docker_compose_v2: 
+        project_src: "{{ appdir }}"
+        build: always
+        state: present
+      register: output
+      notify: Restart Docker Compose
+
+    - name: "Show Docker Compose output"
+      ansible.build.debug: 
+        var: output
+
+  handlers: 
+    - name: "Restart Docker Compose"
+      community.docker.docker_compose_v2:
+        project_src: "{{ appdir }}"
+        state: restarted

@@ -1,0 +1,51 @@
+---
+- name: "Install Docker on VM"
+  hosts: dockerservers
+  become: true
+
+  tasks: 
+    - name: "Install basic packages"
+      apt: 
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop: 
+        - software-properties-common
+        - curl 
+        - apt-transport-https
+        - ca-certificates
+        - gnupg
+
+    - name: "Add Docker GPG key"
+      ansible.builtin.get_url: 
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /usr/share/keyrings/docker-archive-keyring.gpg
+        mode: '0644'
+
+    - name: "Add Docker repository"
+      ansible.builtin.apt_repository: 
+        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable"
+        state: present
+        update_cache: yes
+
+    - name: "Install Docker packages"
+      apt: 
+        name: "{{ item }}"
+        state: present
+      loop: 
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-compose-plugin
+
+    - name: "Ensure Docker service is running"
+      service: 
+        name: docker
+        state: started
+        enabled: true
+
+    - name: "Add user to Docker group"
+      user: 
+        name: vagrant
+        group: docker 
+        append: yes
