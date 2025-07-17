@@ -48,7 +48,7 @@
   - name: Create app database 
     postgresql_db: 
       state: present
-      name: dbname_ueiu # Databse name
+      name: db_name_mude # Databse name
     become: yes
     become_user: postgres
 
@@ -56,14 +56,14 @@
     postgresql_user: 
       state: present
       name: user # User name for db 
-      password: aLvUzUkaU9nNK4MVEksMiCkkjFofBwp5 # Password for db
+      password:  jjV6YNt1HQmwfgYpnKImN2MBmvm28Qrd # Password for db
     become: yes
     become_user: postgres
 
   - name: "Grant db user access to app db" 
     postgresql_privs: 
       type: database
-      database: dbname_ueiu # Database name
+      database: db_name_mude # Database name
       roles: user # Database user name
       grant_option: no
       privs: all

@@ -7,9 +7,9 @@
     java_version: "openjdk-21-jdk"
     app:
       env:
-        spring.datasource.url: "jdbc:postgresql://dpg-d187i2p5pdvs73bvc2ng-a.oregon-postgres.render.com:5432/dbname_ueiu"
+        spring.datasource.url: "jdbc:postgresql://dpg-d1sb0mmmcj7s73dgu3lg-a.oregon-postgres.render.com:5432/db_name_mude"
         spring.datasource.username: "user"
-        spring.datasource.password: "aLvUzUkaU9nNK4MVEksMiCkkjFofBwp5"
+        spring.datasource.password: "jjV6YNt1HQmwfgYpnKImN2MBmvm28Qrd"
 
   pre_tasks:
     - name: "Install Java"

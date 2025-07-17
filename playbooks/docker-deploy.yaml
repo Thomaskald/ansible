@@ -5,9 +5,9 @@
     branch: Code
     appp: 
       env: 
-      SPRING_DATASOURCE_URL: 
-      SPRING_DATASOURCE_USERNAME: 
-      SPRING_DATASOURCE_PASSWORD: 
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://dpg-d1sb0mmmcj7s73dgu3lg-a.oregon-postgres.render.com:5432/db_name_mude"
+      SPRING_DATASOURCE_USERNAME: "user"
+      SPRING_DATASOURCE_PASSWORD: "jjV6YNt1HQmwfgYpnKImN2MBmvm28Qrd"
   
   tasks: 
     - name: "Check if docker is installed"
