@@ -21,6 +21,11 @@ appservers:
       ansible_host: 192.168.56.11
       ansible_user: vagrant
       ansible_ssh_private_key_file:   ~/ansible/vagrant-b-f/.vagrant/machines/default/virtualbox/private_key
+    k8s-vm:
+      ansible_host: 192.168.56.13
+      ansible_user: vagrant
+      ansible_ssh_private_key_file: ~/ansible/vagrant-k8s/.vagrant/machines/k8s-vm/virtualbox/private_key
+
 
 dockerservers: 
   hosts: 
