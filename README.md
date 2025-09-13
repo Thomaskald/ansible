@@ -15,3 +15,10 @@ Move to the directory that has the ansible.cfg and hosts.yaml and run the playbo
 ansible-playbook -i hosts.yaml playbooks/docker.yaml
 ansible-playbook -i hosts.yaml playbooks/docker-deploy.yaml 
 You can use the app from the http://192.168.56.12
+
+# Run the app with k8s-vm
+Run the vagrant k8s-vm with:
+vagrant up
+Move to the directory that has the ansible.cfg and hosts.yaml and run the playbook
+ansible playbook -i hosts.yaml playbooks/k8s.yaml
+You can use the app from the http://192.168.56.13:30080/
